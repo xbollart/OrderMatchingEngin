@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading;
+using Serilog;
 
 
 namespace OrderMatchingEngine
@@ -13,6 +14,8 @@ namespace OrderMatchingEngine
         public ConcurrentQueue<Order> RejectedOrders  = new ConcurrentQueue<Order>();
         public OrderBookEntry[] OrderEntries { get; private set; }
 
+        private Boolean _stopRequested = false;
+        private Boolean _resetRequested = false;
         private Boolean _isUp = false;
         private Boolean _isInit = false;
         public UInt64 AskMin { get; private set; } = UInt64.MaxValue;
@@ -23,9 +26,17 @@ namespace OrderMatchingEngine
         public UInt64 _currOrderID = 0; // what is the max value of this???
 
         private Int64 _maxNbOrders;
+        private ILogger _logger;
+        
+
+        public Engine(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         public Boolean Init(UInt64 minPrice, UInt64 maxPrice, Int64 maxNbOrders )
         {
+            _logger.Information("Init engine");
             if (_isInit)
                 return _isInit;
 
@@ -47,32 +58,57 @@ namespace OrderMatchingEngine
             return _isInit;
         }
 
-        public String SendToEngine(Order incomingOrder)
+        public Order SendToEngine(Order incomingOrder)
         {
             if (_incomingOrders.Count >= _maxNbOrders)
-                return "System under heavy load Try again later";
-            //todo return order with status rejected + msg reason
+            {
+                incomingOrder.Status = OrderStatus.REJECTED;
+                incomingOrder.ErrorMessage = "System under heavy load Try again later";
+                return incomingOrder;
+            }
+            
+            if (incomingOrder.Price > _maxPrice || incomingOrder.Price < _minPrice)
+            {
+                incomingOrder.Status = OrderStatus.REJECTED;
+                incomingOrder.ErrorMessage = $"{ErrorType.PRICE_OUSTIDE_OF_RANGE.ToString()} should feet within min max price";
+                RejectedOrders.Enqueue(incomingOrder);
+                _logger.Information("order Rejected");
+                return incomingOrder;
+            }
+            
+            if (incomingOrder.Quantity == 0 )
+            {
+                incomingOrder.Status = OrderStatus.REJECTED;
+                incomingOrder.ErrorMessage = $"{ErrorType.QUANTITY_OUTSIDE_OF_RANGE.ToString()} should feet within min max quantity";
+                RejectedOrders.Enqueue(incomingOrder);
+                _logger.Information("order Rejected");
+                return incomingOrder;
+            }
+
+            incomingOrder.Status = OrderStatus.INIT;
             _incomingOrders.Enqueue(incomingOrder);
-            return "ack Order received";
+            
+            return incomingOrder;
         }
 
         public void Start()
         {
-            // study thread safety
-            
+            //todo study thread safety  probably need a lock
+            _logger.Information("Start engine");
             if(_isUp)
                 return;
 
             _isUp = true;
-                            
-            while (_isUp)
-            {
 
+            while (!_stopRequested)
+            {
                 Process();
-                
                 //todo replace with a loop timer
                 Thread.Sleep(100);
             }
+            
+            _logger.Information("Stop engine");
+            _isUp = false;
         }
 
         private void Process()
@@ -82,54 +118,79 @@ namespace OrderMatchingEngine
              
             if(!_incomingOrders.TryDequeue(out Order currOrder))
                 return;
-            
-            if (currOrder.Price > _maxPrice || currOrder.Price < _minPrice)
-            {
-                RejectedOrders.Enqueue(currOrder);
-                Console.WriteLine("Order rejected");
-                return;
-            }
 
             currOrder.ExchangeOrderId = _currOrderID;
             _currOrderID++;
             
             if (currOrder.Side == OrderSide.BUY && currOrder.Price < AskMin)
             {                   
-                Console.WriteLine($"Add buy to order book Order: {currOrder.ExchangeOrderId}");
+                _logger.Information($"Add buy to order book Order: {currOrder.ExchangeOrderId}");
                 OrderEntries[currOrder.Price].AddOrder(currOrder);
                 if (currOrder.Price > BidMax)
                     BidMax = currOrder.Price;
-
-
             }
             else if ((currOrder.Side == OrderSide.SELL && currOrder.Price > BidMax))
             {
-                Console.WriteLine($"Add sell to order book Order: {currOrder.ExchangeOrderId}");
+                _logger.Information($"Add sell to order book Order: {currOrder.ExchangeOrderId}");
                 OrderEntries[currOrder.Price].AddOrder(currOrder);
                 if (currOrder.Price < AskMin)
                     AskMin = currOrder.Price;
-
             }
             else
             {
-                Console.WriteLine($"try match Order: {currOrder.ExchangeOrderId}");
+                _logger.Information($"try match Order: {currOrder.ExchangeOrderId}");
                 TryMatch(currOrder);
-                
-                //if match adjust bidMax / askMin
             }
             
-            Console.WriteLine($"Bid/ask: {BidMax} | {AskMin}");
+            _logger.Information($"Bid/ask: {BidMax} | {AskMin}");
         }
 
         // FIFO matching
         private void TryMatch(Order order)
+        {                         
+            //if match adjust bidMax / askMin
+            
+            if (order.Side == OrderSide.BUY && order.Price >= AskMin)
+            {
+                TryMatchAsk(order);
+            }
+            else if (order.Side == OrderSide.SELL && order.Price <= BidMax)
+            {
+                TryMatchBid(order);
+            }
+        }
+
+        private void TryMatchAsk(Order order)
         {
-         //   throw new NotImplementedException;
+            UInt64 currentPrice = AskMin;
+            while (order.Quantity > 0 && currentPrice <= order.Price)
+            {
+                var currentEntry = OrderEntries[currentPrice];
+                while (order.Quantity > 0 && currentEntry.Orders.Count > 0)
+                {
+                    
+                }
+
+
+            }
+        }
+
+        private void TryMatchBid(Order order)
+        {
+            
         }
 
         public void Stop()
         {
-            _isUp = false;
+            _stopRequested = true;
+        }
+        
+        public void Dispose()
+        {
+            if (!_isUp)
+            {
+                //todo clean up
+            }
         }
     }
 }

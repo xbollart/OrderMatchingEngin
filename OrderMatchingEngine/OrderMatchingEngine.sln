@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderMatchingEngine", "Orde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderMatchingEngineTest", "OrderMatchingEngineTest\OrderMatchingEngineTest.csproj", "{F7BDEF17-8099-46EB-B124-50E25987F4D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatchingEngineLight", "MatchingEngineLight\MatchingEngineLight.csproj", "{BBA3F906-CB3B-450F-AB33-EBBB6BF18370}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatchingEngineLightTest", "MatchingEngineLightTest\MatchingEngineLightTest.csproj", "{5376C2B4-587E-4C6D-84D4-A6EAFE13652E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{F7BDEF17-8099-46EB-B124-50E25987F4D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7BDEF17-8099-46EB-B124-50E25987F4D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7BDEF17-8099-46EB-B124-50E25987F4D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBA3F906-CB3B-450F-AB33-EBBB6BF18370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBA3F906-CB3B-450F-AB33-EBBB6BF18370}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBA3F906-CB3B-450F-AB33-EBBB6BF18370}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBA3F906-CB3B-450F-AB33-EBBB6BF18370}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5376C2B4-587E-4C6D-84D4-A6EAFE13652E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5376C2B4-587E-4C6D-84D4-A6EAFE13652E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5376C2B4-587E-4C6D-84D4-A6EAFE13652E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5376C2B4-587E-4C6D-84D4-A6EAFE13652E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

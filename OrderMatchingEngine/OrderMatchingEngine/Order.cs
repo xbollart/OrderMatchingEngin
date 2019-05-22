@@ -15,6 +15,8 @@ namespace OrderMatchingEngine
         public UInt64 Price { get; set; }
         public UInt64 Quantity { get; set; }
         public OrderSide Side { get; set; }
+        public OrderStatus Status { get; set; }
+        public String ErrorMessage { get; set; }
         public UInt64 ExchangeOrderId { get; set; }
         public String ClientOrderId { get; set; }
         public String Instrument { get; set; }

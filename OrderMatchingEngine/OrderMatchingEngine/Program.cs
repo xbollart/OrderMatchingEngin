@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Serilog;
 
 namespace OrderMatchingEngine
 {
@@ -7,7 +8,13 @@ namespace OrderMatchingEngine
     {
         static void Main(string[] args)
         {   
-            Engine btcusdEngine = new Engine();
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File("logs\\log.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();        
+            
+            Engine btcusdEngine = new Engine(logger);
 
             if (btcusdEngine.Init(1,100,1000))
             {
