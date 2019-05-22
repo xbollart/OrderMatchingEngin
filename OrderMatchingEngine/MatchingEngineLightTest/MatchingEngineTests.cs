@@ -19,7 +19,7 @@ namespace MatchingEngineLightTest
             Order order1 = new Order(OrderSide.BUY, price, 10, OrderType.GFD, "order1");
             engine.SendOrder(order1);
 
-            engine.orderDict.Keys.Should().Contain("order1");
+            engine.OrderDict.Keys.Should().Contain("order1");
             engine.OrderEntries[price].TotalQuantity.Should().Be(10);
             engine.OrderEntries[price].Orders.Count.Should().Be(1);
             order1.Status.Should().Be(OrderStatus.ON_MARKET);
@@ -38,8 +38,8 @@ namespace MatchingEngineLightTest
             engine.SendOrder(new Order(OrderSide.BUY,price,10,OrderType.GFD,"order1"));
             engine.SendOrder(new Order(OrderSide.BUY,price,20,OrderType.GFD,"order2"));
 
-            engine.orderDict.Keys.Should().Contain("order1");
-            engine.orderDict.Keys.Should().Contain("order2");
+            engine.OrderDict.Keys.Should().Contain("order1");
+            engine.OrderDict.Keys.Should().Contain("order2");
             engine.OrderEntries[price].TotalQuantity.Should().Be(30);
             engine.OrderEntries[price].Orders.Count.Should().Be(2);
             engine.MaxBid.Should().Be(1000);
@@ -56,7 +56,7 @@ namespace MatchingEngineLightTest
             Order order1 = new Order(OrderSide.BUY, price, 10, OrderType.IOC, "order1");
             engine.SendOrder(order1);
 
-            engine.orderDict.Keys.Should().Contain("order1");
+            engine.OrderDict.Keys.Should().Contain("order1");
             engine.OrderEntries[price].TotalQuantity.Should().Be(0);
             engine.OrderEntries[price].Orders.Count.Should().Be(0);
             order1.Status.Should().Be(OrderStatus.CANCELED);
@@ -75,7 +75,7 @@ namespace MatchingEngineLightTest
             engine.SendOrder(order1);
             engine.SendOrder(order2);
 
-            engine.orderDict.Keys.Should().Contain("order1");
+            engine.OrderDict.Keys.Should().Contain("order1");
             engine.OrderEntries[1000].TotalQuantity.Should().Be(10);
             engine.OrderEntries[1000].Orders.Count.Should().Be(1);
             engine.OrderEntries[1001].TotalQuantity.Should().Be(20);
@@ -96,8 +96,8 @@ namespace MatchingEngineLightTest
             engine.SendOrder(order1);
             engine.SendOrder(order2);
 
-            engine.orderDict.Keys.Should().Contain("order1");
-            engine.orderDict.Keys.Should().Contain("order2");
+            engine.OrderDict.Keys.Should().Contain("order1");
+            engine.OrderDict.Keys.Should().Contain("order2");
             
             engine.OrderEntries[1000].TotalQuantity.Should().Be(0);
             engine.OrderEntries[1000].Orders.Count.Should().Be(0);
@@ -122,7 +122,7 @@ namespace MatchingEngineLightTest
             engine.SendOrder(order1);
             engine.CancelOrder("order1");
 
-            engine.orderDict.Keys.Should().Contain("order1");
+            engine.OrderDict.Keys.Should().Contain("order1");
 
             
             engine.OrderEntries[1000].TotalQuantity.Should().Be(0);
@@ -143,7 +143,7 @@ namespace MatchingEngineLightTest
             engine.SendOrder(order1);
             engine.CancelOrder("order1");
 
-            engine.orderDict.Keys.Should().Contain("order1");
+            engine.OrderDict.Keys.Should().Contain("order1");
 
             
             engine.OrderEntries[1000].TotalQuantity.Should().Be(0);
